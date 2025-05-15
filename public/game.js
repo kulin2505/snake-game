@@ -13,10 +13,10 @@ class SnakeGame {
         this.score = 0;
         this.gameLoop = null;
         this.playerName = '';
-        this.leaderboard = JSON.parse(localStorage.getItem('snakeLeaderboard')) || [];
+        this.leaderboard = [];
         
         this.setupEventListeners();
-        this.updateLeaderboard();
+        this.fetchLeaderboard();
     }
 
     setupEventListeners() {
@@ -167,22 +167,8 @@ class SnakeGame {
     gameOver() {
         clearInterval(this.gameLoop);
         
-        // 更新积分榜
-        this.leaderboard.push({
-            name: this.playerName,
-            score: this.score,
-            date: new Date().toLocaleDateString()
-        });
-        
-        // 按分数排序并只保留前10名
-        this.leaderboard.sort((a, b) => b.score - a.score);
-        this.leaderboard = this.leaderboard.slice(0, 10);
-        
-        // 保存到本地存储
-        localStorage.setItem('snakeLeaderboard', JSON.stringify(this.leaderboard));
-        
-        // 更新显示
-        this.updateLeaderboard();
+        // 更新服务器上的积分榜
+        this.updateLeaderboardData(this.playerName, this.score);
         
         // 显示游戏结束界面
         document.getElementById('gameScreen').classList.add('hidden');
@@ -238,6 +224,34 @@ class SnakeGame {
             };
         } while (this.snake.some(segment => segment.x === food.x && segment.y === food.y));
         return food;
+    }
+
+    // 获取积分榜数据
+    async fetchLeaderboard() {
+        try {
+            const response = await fetch('/api/leaderboard');
+            this.leaderboard = await response.json();
+            this.updateLeaderboard();
+        } catch (error) {
+            console.error('Error fetching leaderboard:', error);
+        }
+    }
+
+    // 更新积分榜数据
+    async updateLeaderboardData(name, score) {
+        try {
+            const response = await fetch('/api/leaderboard', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, score })
+            });
+            this.leaderboard = await response.json();
+            this.updateLeaderboard();
+        } catch (error) {
+            console.error('Error updating leaderboard:', error);
+        }
     }
 }
 
