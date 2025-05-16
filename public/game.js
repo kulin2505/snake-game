@@ -253,15 +253,13 @@ class SnakeGame {
     async fetchLeaderboard() {
         try {
             const response = await fetch('/api/leaderboard');
+            if (!response.ok) {
+                throw new Error('Failed to fetch leaderboard');
+            }
             this.leaderboard = await response.json();
             this.updateLeaderboard();
-            
-            // 每5秒刷新一次积分榜
-            setTimeout(() => this.fetchLeaderboard(), 5000);
         } catch (error) {
             console.error('Error fetching leaderboard:', error);
-            // 如果出错，5秒后重试
-            setTimeout(() => this.fetchLeaderboard(), 5000);
         }
     }
 
@@ -271,10 +269,15 @@ class SnakeGame {
             const response = await fetch('/api/leaderboard', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ name, score })
             });
+            
+            if (!response.ok) {
+                throw new Error('Failed to update leaderboard');
+            }
+            
             this.leaderboard = await response.json();
             this.updateLeaderboard();
         } catch (error) {
