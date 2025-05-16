@@ -11,5 +11,8 @@
             "src": "/(.*)",
             "dest": "server.js"
         }
-    ]
+    ],
+    "env": {
+        "MONGODB_URI": "mongodb+srv://kulin2505:1234567890@cluster0.mongodb.net/snake-game?retryWrites=true&w=majority"
+    }
 } 
