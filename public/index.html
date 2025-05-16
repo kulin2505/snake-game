@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,35 +7,38 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="game-container">
+    <div class="container">
+        <!-- 开始屏幕 -->
         <div id="startScreen" class="screen">
             <h1>贪吃蛇游戏</h1>
             <div class="player-setup">
-                <input type="text" id="playerName" placeholder="请输入你的名字" maxlength="15">
+                <input type="text" id="playerName" placeholder="输入你的名字" maxlength="15">
                 <button id="startGameBtn">开始游戏</button>
             </div>
         </div>
 
-        <div id="gameScreen" class="screen hidden">
-            <div class="game-header">
-                <div class="score-container">
-                    <div class="player-info">
-                        <span id="currentPlayerName"></span>
-                        <span>得分: </span>
-                        <span id="currentScore">0</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="game-content">
-                <canvas id="gameCanvas"></canvas>
-                <div class="leaderboard">
-                    <h3>积分榜</h3>
-                    <div id="leaderboardList"></div>
-                </div>
+        <!-- 倒计时屏幕 -->
+        <div id="countdownScreen" class="screen hidden">
+            <div class="countdown">
+                <span id="countdownNumber">3</span>
             </div>
         </div>
 
+        <!-- 游戏屏幕 -->
+        <div id="gameScreen" class="screen hidden">
+            <div class="game-header">
+                <div class="player-info">
+                    <span id="currentPlayerName"></span>
+                    <span id="currentScore">0</span>
+                </div>
+            </div>
+            <canvas id="gameCanvas"></canvas>
+            <div class="controls">
+                <p>使用方向键或 WASD 控制蛇的移动</p>
+            </div>
+        </div>
+
+        <!-- 游戏结束屏幕 -->
         <div id="gameOverScreen" class="screen hidden">
             <h2>游戏结束</h2>
             <div id="finalScore"></div>

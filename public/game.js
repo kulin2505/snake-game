@@ -14,6 +14,7 @@ class SnakeGame {
         this.gameLoop = null;
         this.playerName = '';
         this.leaderboard = [];
+        this.gameSpeed = 150; // 降低游戏速度（数值越大越慢）
         
         this.setupEventListeners();
         this.fetchLeaderboard();
@@ -42,24 +43,40 @@ class SnakeGame {
         
         nameInput.classList.remove('error');
         document.getElementById('startScreen').classList.add('hidden');
-        document.getElementById('gameScreen').classList.remove('hidden');
-        document.getElementById('currentPlayerName').textContent = this.playerName;
+        document.getElementById('countdownScreen').classList.remove('hidden');
         
-        this.snake = [{x: 10, y: 10}];
-        this.direction = 'right';
-        this.nextDirection = 'right';
-        this.score = 0;
-        this.food = this.generateFood();
-        document.getElementById('currentScore').textContent = '0';
+        // 开始倒计时
+        let countdown = 3;
+        const countdownElement = document.getElementById('countdownNumber');
+        countdownElement.textContent = countdown;
+        
+        const countdownInterval = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+                document.getElementById('countdownScreen').classList.add('hidden');
+                document.getElementById('gameScreen').classList.remove('hidden');
+                document.getElementById('currentPlayerName').textContent = this.playerName;
+                
+                this.snake = [{x: 10, y: 10}];
+                this.direction = 'right';
+                this.nextDirection = 'right';
+                this.score = 0;
+                this.food = this.generateFood();
+                document.getElementById('currentScore').textContent = '0';
 
-        if (this.gameLoop) {
-            clearInterval(this.gameLoop);
-        }
+                if (this.gameLoop) {
+                    clearInterval(this.gameLoop);
+                }
 
-        this.gameLoop = setInterval(() => {
-            this.update();
-            this.draw();
-        }, 100);
+                this.gameLoop = setInterval(() => {
+                    this.update();
+                    this.draw();
+                }, this.gameSpeed);
+            }
+        }, 1000);
     }
 
     handleKeyPress(event) {
@@ -232,8 +249,13 @@ class SnakeGame {
             const response = await fetch('/api/leaderboard');
             this.leaderboard = await response.json();
             this.updateLeaderboard();
+            
+            // 每5秒刷新一次积分榜
+            setTimeout(() => this.fetchLeaderboard(), 5000);
         } catch (error) {
             console.error('Error fetching leaderboard:', error);
+            // 如果出错，5秒后重试
+            setTimeout(() => this.fetchLeaderboard(), 5000);
         }
     }
 
