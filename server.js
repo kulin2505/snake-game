@@ -1,35 +1,11 @@
 const express = require('express');
 const path = require('path');
-const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const LEADERBOARD_FILE = path.join(__dirname, 'leaderboard.json');
 
-// 初始化积分榜文件
-if (!fs.existsSync(LEADERBOARD_FILE)) {
-    fs.writeFileSync(LEADERBOARD_FILE, JSON.stringify([]));
-}
-
-// 读取积分榜数据
-function readLeaderboard() {
-    try {
-        const data = fs.readFileSync(LEADERBOARD_FILE, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error reading leaderboard:', error);
-        return [];
-    }
-}
-
-// 保存积分榜数据
-function saveLeaderboard(leaderboard) {
-    try {
-        fs.writeFileSync(LEADERBOARD_FILE, JSON.stringify(leaderboard, null, 2));
-    } catch (error) {
-        console.error('Error saving leaderboard:', error);
-    }
-}
+// 使用内存存储积分榜数据
+let leaderboard = [];
 
 // 提供静态文件
 app.use(express.static(path.join(__dirname, 'public')));
@@ -37,25 +13,29 @@ app.use(express.json());
 
 // 获取积分榜
 app.get('/api/leaderboard', (req, res) => {
-    const leaderboard = readLeaderboard();
+    console.log('Getting leaderboard:', leaderboard);
     res.json(leaderboard);
 });
 
 // 更新积分榜
 app.post('/api/leaderboard', (req, res) => {
     const { name, score } = req.body;
-    let leaderboard = readLeaderboard();
+    console.log('Updating leaderboard with:', { name, score });
     
     // 检查是否已存在该玩家的记录
     const existingIndex = leaderboard.findIndex(entry => entry.name === name);
     if (existingIndex !== -1) {
         // 如果新分数更高，则更新
         if (score > leaderboard[existingIndex].score) {
+            console.log(`Updating score for ${name} from ${leaderboard[existingIndex].score} to ${score}`);
             leaderboard[existingIndex].score = score;
             leaderboard[existingIndex].date = new Date().toLocaleDateString();
+        } else {
+            console.log(`Score ${score} for ${name} is not higher than existing score ${leaderboard[existingIndex].score}`);
         }
     } else {
         // 添加新记录
+        console.log(`Adding new player ${name} with score ${score}`);
         leaderboard.push({
             name,
             score,
@@ -67,9 +47,7 @@ app.post('/api/leaderboard', (req, res) => {
     leaderboard.sort((a, b) => b.score - a.score);
     leaderboard = leaderboard.slice(0, 10);
     
-    // 保存更新后的积分榜
-    saveLeaderboard(leaderboard);
-    
+    console.log('Updated leaderboard:', leaderboard);
     res.json(leaderboard);
 });
 
