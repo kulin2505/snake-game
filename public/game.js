@@ -34,11 +34,16 @@ class SnakeGame {
 
     startGame() {
         const nameInput = document.getElementById('playerName');
-        this.playerName = nameInput.value.trim();
+        const inputName = nameInput.value.trim();
         
-        if (!this.playerName) {
-            nameInput.classList.add('error');
-            return;
+        // 如果输入框为空，使用之前的名字
+        if (!inputName) {
+            if (!this.playerName) {
+                nameInput.classList.add('error');
+                return;
+            }
+        } else {
+            this.playerName = inputName;
         }
         
         nameInput.classList.remove('error');
@@ -229,7 +234,8 @@ class SnakeGame {
     resetGame() {
         document.getElementById('gameOverScreen').classList.add('hidden');
         document.getElementById('startScreen').classList.remove('hidden');
-        document.getElementById('playerName').value = '';
+        // 不再清空玩家名字输入框
+        // document.getElementById('playerName').value = '';
     }
 
     generateFood() {
